@@ -19,8 +19,8 @@ app.get('/signup', (req, res) => {
     Your id is: ${req.session.userId}
       <form method="POST">
         <input name="email" placeholder="email" />
-        <input name="password" placeholder="password confirmation" />
-        <input name="passwordConfirmation" placeholder="password" />
+        <input name="password" placeholder="password" />
+        <input name="passwordConfirmation" placeholder="password confirmation" />
         <button>Sign Up</button>
       </form>
     </div>
@@ -58,7 +58,7 @@ app.get('/signin', (req, res) => {
     <div>
       <form method="POST">
         <input name="email" placeholder="email" />
-        <input name="password" placeholder="password confirmation" />
+        <input name="password" placeholder="password" />
         <button>Sign In</button>
       </form>
     </div>
@@ -74,7 +74,9 @@ app.post('/signin', async (req, res) => {
     return res.send('Email not found');
   }
 
-  if (user.password !== password) {
+  const validPassword = await usersRepo.comparePasswords(user.password, password);
+
+  if (!validPassword) {
     return res.send('Invalid password');
   }
 
