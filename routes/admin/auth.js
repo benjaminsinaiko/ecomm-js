@@ -1,4 +1,5 @@
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const usersRepo = require('../../repositories/users');
 const signupTemplate = require('../../views/admin/auth/signup');
 const signinTemplate = require('../../views/admin/auth/signin');
@@ -17,26 +18,47 @@ router.get('/signup', (req, res) => {
 // POST - Signup
 // ################
 
-router.post('/signup', async (req, res) => {
-  const { email, password, passwordConfirmation } = req.body;
+router.post(
+  '/signup',
+  [
+    check('email')
+      .trim()
+      .normalizeEmail()
+      .isEmail()
+      .withMessage('Must be a valid email')
+      .custom(async email => {
+        const existingUser = await usersRepo.getOneBy({ email });
+        if (existingUser) {
+          throw new Error('Email already exists');
+        }
+      }),
+    check('password')
+      .trim()
+      .isLength({ min: 4, max: 20 }),
+    check('passwordConfirmation')
+      .trim()
+      .isLength({ min: 4, max: 20 })
+      .custom((value, { req }) => {
+        if (value !== req) {
+          throw new Error('Passwords must match');
+        }
+      })
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    console.log(errors);
 
-  const existingUser = await usersRepo.getOneBy({ email });
-  if (existingUser) {
-    return res.send('Email already used');
+    const { email, password, passwordConfirmation } = req.body;
+
+    // Create user in user repo to represent new person
+    const user = await usersRepo.create({ email, password });
+
+    // Store id of user inside the user's cookie
+    req.session.userId = user.id;
+
+    res.send('Account created!!!');
   }
-
-  if (password !== passwordConfirmation) {
-    return res.send('Passwords must match');
-  }
-
-  // Create user in user repo to represent new person
-  const user = await usersRepo.create({ email, password });
-
-  // Store id of user inside the user's cookie
-  req.session.userId = user.id;
-
-  res.send('Account created!!!');
-});
+);
 
 // ################
 // GET - Signout
