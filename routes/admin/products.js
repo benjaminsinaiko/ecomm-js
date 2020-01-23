@@ -3,6 +3,7 @@ const multer = require('multer');
 
 const { handleErrors } = require('./middlewares');
 const productsRepo = require('../../repositories/products');
+const productsIndexTemplate = require('../../views/admin/products');
 const productsNewTemplate = require('../../views/admin/products/new');
 const { requireTitle, requirePrice } = require('./validators');
 
@@ -12,8 +13,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 // ################
 // GET - All products
 // ################
-router.get('/admin/products', (req, res) => {
-  //
+router.get('/admin/products', async (req, res) => {
+  const products = await productsRepo.getAll();
+  res.send(productsIndexTemplate({ products }));
 });
 
 // ################
@@ -32,11 +34,11 @@ router.post(
   [requireTitle, requirePrice],
   handleErrors(productsNewTemplate),
   async (req, res) => {
-    const image = req.file.buffer.toString('base64');
+    const image = req.file.buffer.toString('base64') || '';
     const { title, price } = req.body;
     await productsRepo.create({ title, price, image });
 
-    res.send('submitted');
+    res.redirect('/admin/products');
   }
 );
 
