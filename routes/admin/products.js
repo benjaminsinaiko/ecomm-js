@@ -45,7 +45,7 @@ router.post(
 );
 
 // ################
-// GET - Product ID
+// GET - Edit product
 // ################
 router.get('/admin/products/:id/edit', requireAuth, async (req, res) => {
   const product = await productsRepo.getOne(req.params.id);
@@ -58,7 +58,7 @@ router.get('/admin/products/:id/edit', requireAuth, async (req, res) => {
 });
 
 // ################
-// POST - Product ID
+// POST - Edit product
 // ################
 router.post(
   '/admin/products/:id/edit',
@@ -85,5 +85,15 @@ router.post(
     res.redirect('/admin/products');
   }
 );
+
+// ################
+// POST - Delete product
+// ################
+router.post('/admin/products/:id/delete', requireAuth, async (req, res) => {
+  await console.log(req.params.id);
+  await productsRepo.delete(req.params.id);
+
+  res.redirect('/admin/products');
+});
 
 module.exports = router;
