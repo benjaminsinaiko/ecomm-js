@@ -1,4 +1,6 @@
 const express = require('express');
+const productsRepo = require('../repositories/products');
+const productsIndexTemplate = require('../views/products');
 
 const router = express();
 
@@ -6,7 +8,8 @@ const router = express();
 // GET - Products
 // ################
 router.get('/', async (req, res) => {
-  res.send('Products page');
+  const products = await productsRepo.getAll();
+  res.send(productsIndexTemplate({ products }));
 });
 
 module.exports = router;
