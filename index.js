@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const authRouter = require('./routes/admin/auth');
 const productsRouter = require('./routes/products');
-const AdminProductsRouter = require('./routes/admin/products');
+const adminProductsRouter = require('./routes/admin/products');
+const cartsRouter = require('./routes/carts');
 
 const app = express();
 const port = 3000;
@@ -17,7 +18,8 @@ app.use(
 );
 app.use(authRouter);
 app.use(productsRouter);
-app.use(AdminProductsRouter);
+app.use(adminProductsRouter);
+app.use(cartsRouter);
 
 app.listen(port, () => {
   console.log(`Listening on :${port}`);
